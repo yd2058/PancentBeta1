@@ -150,7 +150,7 @@
             android:layout_weight="1" />
 
         <ToggleButton
-            android:id="@+id/toggleButton"
+            android:id="@+id/staylogtg"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -181,11 +181,12 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/logregbtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Login" />
+            android:text="Login"
+            android:onClick="login"/>
 
         <Space
             android:layout_width="0dp"
@@ -214,7 +215,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Register" />
+            android:text="Register"
+            android:onClick="register" />
 
         <Space
             android:layout_width="0dp"
