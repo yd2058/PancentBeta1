@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="unapproving_Red">#FFC41230</color>"
+    <color name="approving_Green">#FF5e9732</color>"
+    <color name="default_dark_grey">#FF625b71</color>
 </resources>

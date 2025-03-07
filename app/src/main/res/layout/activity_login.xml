@@ -156,7 +156,8 @@
             android:layout_weight="1"
             android:text="ToggleButton"
             android:textOff="Stay logged in"
-            android:textOn="One-time login" />
+            android:textOn="One-time login"
+            android:onClick="toglogtype"/>
 
         <Space
             android:layout_width="0dp"
@@ -211,7 +212,7 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button7"
+            android:id="@+id/regtogbtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

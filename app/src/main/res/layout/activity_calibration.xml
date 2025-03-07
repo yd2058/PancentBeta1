@@ -5,9 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
-    tools:context=".CalibrationActivity"
-    android:gravity="center">
+    tools:context=".CalibrationActivity">
 
 
     <Space
@@ -19,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <Space
@@ -27,11 +28,12 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/resbtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:text="Reset"
+            android:onClick="reset"/>
 
         <Space
             android:layout_width="0dp"
@@ -48,6 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <Space
@@ -56,34 +59,40 @@
             android:layout_weight="1" />
 
         <Button
+            android:id="@+id/Lbtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:backgroundTint="#C41230"
+            android:onClick="saveLeft"
+            android:text="L" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="0.675" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/Anabtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Button" />
+            android:layout_weight="1.75"
+            android:text="Analyse"
+            android:visibility="invisible" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="0.675" />
 
         <Button
-            android:id="@+id/button6"
+            android:id="@+id/Rbtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:backgroundTint="#C41230"
+            android:onClick="saveRight"
+            android:text="R" />
 
         <Space
             android:layout_width="0dp"
@@ -97,22 +106,65 @@
         android:layout_weight="1.75" />
 
     <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="200dp"
+        android:id="@+id/sBvert"
+        android:layout_width="215dp"
         android:layout_height="0dp"
         android:layout_weight="0.2"
+        android:enabled="false"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="@android:color/transparent"
         android:rotation="90" />
 
-    <Space
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.4" />
+        android:layout_weight="0.39"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="L" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="R" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <SeekBar
-        android:id="@+id/seekBar2"
-        android:layout_width="290dp"
+        android:id="@+id/sBhori"
+        android:layout_width="300dp"
         android:layout_height="0dp"
-        android:layout_weight="0.2" />
+        android:layout_weight="0.2"
+        android:enabled="false"
+        android:indeterminate="false"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="@android:color/transparent" />
 
     <Space
         android:layout_width="match_parent"
@@ -123,6 +175,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <Space
@@ -131,10 +184,12 @@
             android:layout_weight="1" />
 
         <Button
+            android:id="@+id/savebtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:text="Save Calibration"
+            android:onClick="save"/>
 
         <Space
             android:layout_width="0dp"

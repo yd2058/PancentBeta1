@@ -8,9 +8,15 @@ package com.example.pancentbeta1;
  */
 
 
+import static com.example.pancentbeta1.Helpers.FBHelper.refauth;
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -23,4 +29,25 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
     }
+
+    public boolean onCreateOptionsMenu(Menu menu){
+        menu.add("Home");
+        menu.add("Logout");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public boolean onOptionsItemSelected(@NonNull MenuItem item){
+        if(item.getTitle().toString().equals("Logout")){
+            refauth.signOut();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+        else if(item.getTitle().toString().equals("home")){
+            //pass
+        }
+
+
+
+        return super.onOptionsItemSelected(item);
+    }
 }
+

@@ -13,6 +13,7 @@ import static com.example.pancentbeta1.Helpers.FBHelper.refauth;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -39,7 +40,10 @@ public class LoginActivity extends AppCompatActivity {
     EditText eTUname, eTem, eTpwd;
     String username, email, password;
     ToggleButton stayloggedin;
-    Button logregbtn;
+    Button logregbtn, regtogbtn;
+    Intent gotohome;
+    SharedPreferences sP;
+    SharedPreferences.Editor sPeditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +55,21 @@ public class LoginActivity extends AppCompatActivity {
         eTpwd = findViewById(R.id.eTpwd);
         stayloggedin = findViewById(R.id.staylogtg);
         logregbtn = findViewById(R.id.logregbtn);
+        regtogbtn = findViewById(R.id.regtogbtn);
+        gotohome = new Intent(this, HomeActivity.class);
+        sP = getSharedPreferences("sp", MODE_PRIVATE);
+        sPeditor = sP.edit();
+
+        if(sP.getBoolean("loginNextTime", true)){
+            refauth.signOut();
+            sPeditor.putBoolean("loginNextTime", false);
+            sPeditor.commit();
+        }
+
+
+
         if(refauth.getCurrentUser()!= null){
-            Intent skiptohome = new Intent(this, HomeActivity.class);
-            startActivity(skiptohome);
+            startActivity(gotohome);
         }
 
 
@@ -68,9 +84,11 @@ public class LoginActivity extends AppCompatActivity {
         email = eTem.getText().toString();
         password = eTpwd.getText().toString();
         if(!email.equals("") && !password.equals("")) {
-            Toast.makeText(this, "Email or password is missing!", Toast.LENGTH_SHORT).show();
+            sPeditor.putBoolean("loginNextTime", stayloggedin.isChecked());
+            sPeditor.commit();
             if (logregbtn.getText().equals("Login")) {
                 refauth.signInWithEmailAndPassword(email,password);
+                startActivity(gotohome);
             } else {
                 username = eTUname.getText().toString();
                 ProgressDialog pd = new ProgressDialog(this);
@@ -85,6 +103,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.i("FB", "Register Success");
                             FirebaseUser user = refauth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "Successfully registered user"+user.getUid(), Toast.LENGTH_SHORT).show();
+                            User currentUser = new User(username, email);
+                            refUsers.child(currentUser.getUid()).setValue(currentUser);
+                            startActivity(gotohome);
                         }
                         else{
                             Exception e = task.getException();
@@ -97,12 +118,9 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
-                User currentUser = new User(username, email);
-                refUsers.child(currentUser.getUid()).setValue(currentUser);
-                Intent gotohome = new Intent(this, HomeActivity.class);
-                startActivity(gotohome);
             }
         }
+        else{Toast.makeText(this, "Email or password is missing!", Toast.LENGTH_SHORT).show();}
 
     }
 
@@ -112,5 +130,17 @@ public class LoginActivity extends AppCompatActivity {
      * registers the user using Firebase Authentication
      */
     public void register(View view) {
+        if(regtogbtn.getText().equals("Register")){
+            logregbtn.setText("Register User");
+            regtogbtn.setText("Login");
+            eTUname.setVisibility(View.VISIBLE);
+        }
+        else{
+            logregbtn.setText("Login");
+            regtogbtn.setText("Register");
+            eTUname.setVisibility(View.INVISIBLE);
+        }
     }
+
+
 }
