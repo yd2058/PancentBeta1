@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+
     namespace 'com.example.pancentbeta1'
     compileSdk 34
 
@@ -26,6 +27,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -45,4 +49,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }

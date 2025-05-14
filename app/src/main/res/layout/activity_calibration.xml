@@ -73,12 +73,13 @@
             android:layout_weight="0.675" />
 
         <Button
-            android:id="@+id/Anabtn"
+            android:id="@+id/anabtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.75"
-            android:text="Analyse"
-            android:visibility="invisible" />
+            android:text="Guide"
+            android:visibility="invisible"
+            android:onClick="guide"/>
 
         <Space
             android:layout_width="0dp"
@@ -114,7 +115,8 @@
         android:max="100"
         android:progress="0"
         android:progressTint="@android:color/transparent"
-        android:rotation="90" />
+        android:rotation="90"
+        android:thumb="@android:drawable/ic_media_ff" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -157,6 +159,7 @@
 
     <SeekBar
         android:id="@+id/sBhori"
+        style="@style/Widget.AppCompat.SeekBar"
         android:layout_width="300dp"
         android:layout_height="0dp"
         android:layout_weight="0.2"
@@ -164,7 +167,8 @@
         android:indeterminate="false"
         android:max="100"
         android:progress="0"
-        android:progressTint="@android:color/transparent" />
+        android:progressTint="@android:color/transparent"
+        android:thumb="@android:drawable/ic_media_ff" />
 
     <Space
         android:layout_width="match_parent"
@@ -188,8 +192,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="save"
             android:text="Save Calibration"
-            android:onClick="save"/>
+            android:visibility="invisible" />
 
         <Space
             android:layout_width="0dp"

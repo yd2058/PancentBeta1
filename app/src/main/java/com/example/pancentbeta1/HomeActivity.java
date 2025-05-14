@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -21,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.pancentbeta1.Helpers.Calibration;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -33,6 +36,7 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu){
         menu.add("Home");
         menu.add("Logout");
+        menu.add("Map");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -48,6 +52,19 @@ public class HomeActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void sPl(View view) {
+        Intent intent = new Intent(this, CalibrationActivity.class);
+        intent.putExtra("isLocation",true);
+        startActivity(intent);
+
+    }
+
+    public void sPan(View view) {
+        Intent intent = new Intent(this, CalibrationActivity.class);
+        intent.putExtra("isLocation",false);
+        startActivity(intent);
     }
 }
 

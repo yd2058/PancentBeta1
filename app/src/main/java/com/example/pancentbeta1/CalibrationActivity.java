@@ -7,9 +7,10 @@ package com.example.pancentbeta1;
  * activity to calibrate and find the ideal listening spot for the user via GPS location or sound analysis(unavailable atm)
  */
 
+import static com.example.pancentbeta1.Helpers.FBHelper.refCals;
 import static com.example.pancentbeta1.Helpers.FBHelper.refauth;
+import static com.example.pancentbeta1.Helpers.FBHelper.storef;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +19,6 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -26,20 +26,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
+
 import android.Manifest;
 import android.widget.Toast;
 
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
+import com.example.pancentbeta1.Helpers.Calibration;
+import com.example.pancentbeta1.Helpers.LiveDbMeter;
+import com.example.pancentbeta1.Helpers.LiveLogcatToFile;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.firebase.storage.FirebaseStorage;
@@ -47,28 +48,35 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Objects;
 
 public class CalibrationActivity extends AppCompatActivity {
     FusedLocationProviderClient fLC;
-    Location locationLeft, locationRight;
+    Location locationLeft, locationRight, locationFOH;
 
     SeekBar sBvert, sBhori;
-    Button btnL, btnR;
+    Button btnL, btnR, anabtn, savebtn, resbtn;
 
-    int presconf;
+
 
     double[] consoleCoordinates = new double[2];
 
 
-    private LocationCallback locationCallback;
-    private LocationRequest locationRequest;
-    private static final String TAG = "CalibrationActivity";
-    private static final int REQUEST_LOCATION_PERMISSION = 1;
+
+
+
 
     SharedPreferences sP;
     SharedPreferences.Editor sPeditor;
-    StorageReference storef;
+
     int counter;
+    String vName;
+    boolean isLocation;
+    private static CalibrationActivity ins;
+
+
+
+    LiveDbMeter liveDbMeter;
 
 
     @Override
@@ -76,145 +84,160 @@ public class CalibrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calibration);
 
-        locationLeft = null;
+        Intent gi = getIntent();
+        isLocation = gi.getBooleanExtra("isLocation",true);
+
         locationRight = null;
+        locationLeft = null;
         consoleCoordinates[0] = -1;
         consoleCoordinates[1] = -1;
-
-        presconf = 24;
 
         sBvert = findViewById(R.id.sBvert);
         sBhori = findViewById(R.id.sBhori);
         btnL = findViewById(R.id.Lbtn);
         btnR = findViewById(R.id.Rbtn);
+        anabtn = findViewById(R.id.anabtn);
+        savebtn = findViewById(R.id.savebtn);
+        resbtn = findViewById(R.id.resbtn);
+
+        savebtn.setVisibility(View.INVISIBLE);
 
         fLC = LocationServices.getFusedLocationProviderClient(this);
-        storef = FirebaseStorage.getInstance().getReference();
+
+
+
+        if(isLocation){
+            sBvert.setVisibility(View.VISIBLE);
+            btnL.setVisibility(View.VISIBLE);
+            btnR.setVisibility(View.VISIBLE);
+
+            anabtn.setVisibility(View.INVISIBLE);
+
+            anabtn.setText("Test Location");
+            resbtn.setText("Reset");
+
+
+
+
+        }
+        else{
+            sBvert.setVisibility(View.INVISIBLE);
+            btnL.setVisibility(View.INVISIBLE);
+            btnR.setVisibility(View.INVISIBLE);
+
+            anabtn.setVisibility(View.VISIBLE);
+
+            anabtn.setText("Guide Panning");
+            resbtn.setText("Pause");
+
+            ins = this;
+
+
+
+
+
+            liveDbMeter = new LiveDbMeter(this);
+        }
+
+
+
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LiveLogcatToFile.startLogging(getApplicationContext());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LiveLogcatToFile.startLogging(getApplicationContext());
+    }
 
     public void reset(View view) {
-        locationLeft = null;
-        locationRight = null;
-        consoleCoordinates[0] = -1;
-        consoleCoordinates[1] = -1;
-        btnL.setBackgroundColor(getResources().getColor(R.color.unapproving_Red));
-        btnR.setBackgroundColor(getResources().getColor(R.color.unapproving_Red));
-        sBvert.setProgress(0);
-        sBhori.setProgress(0);
-        sBvert.getThumb().setColorFilter(0xFF625b71, PorterDuff.Mode.SRC);
-        sBhori.getThumb().setColorFilter(0xFF625b71, PorterDuff.Mode.SRC);
+        if(isLocation) {
+            locationRight = null;
+            locationLeft = null;
+            consoleCoordinates[0] = -1;
+            consoleCoordinates[1] = -1;
+            btnL.setBackgroundColor(getResources().getColor(R.color.unapproving_Red));
+            btnR.setBackgroundColor(getResources().getColor(R.color.unapproving_Red));
+            sBvert.setProgress(0);
+            sBhori.setProgress(0);
+            sBvert.setThumb(DrawableCompat.wrap(Objects.requireNonNull(AppCompatResources.getDrawable(this, android.R.drawable.ic_media_ff))));
+            sBhori.setThumb(DrawableCompat.wrap(Objects.requireNonNull(AppCompatResources.getDrawable(this, android.R.drawable.ic_media_ff))));
+        }
+        else{
+            //pause recording
+            liveDbMeter.stop();
+        }
     }
 
     public void saveLeft(View view) {
-        checkAndRequestLocationPermissions(this, 1);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        fLC.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(this, location -> {
-            if (location != null) {
-                if (locationRight != null) {
-                    if (!locationLeft.equals(locationRight)) {
-                        locationLeft = location;
-                        btnL.setBackgroundColor(getResources().getColor(R.color.approving_Green));
-                    }
-                    else{Toast.makeText(this, "You placed them both on the same location! \nPlease reset and try again", Toast.LENGTH_SHORT).show();}
-                }
-                else{
-                    locationLeft = location;
-                    btnL.setBackgroundColor(getResources().getColor(R.color.approving_Green));
-                }
-            }
-        });
-        startGuide();
-    }
+        Log.i("FB", "saveLeft");
 
-    public void saveRight (View view){
-        checkAndRequestLocationPermissions(this, 1);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+
         }
         fLC.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(this, location -> {
             if (location != null) {
+                Toast.makeText(this, "Location Left registered", Toast.LENGTH_SHORT).show();
+
                 if (locationLeft != null) {
-                    if (!locationLeft.equals(locationRight)) {
+                    if (location.distanceTo(locationLeft) != 0) {
                         locationRight = location;
-                        btnR.setBackgroundColor(getResources().getColor(R.color.approving_Green));
+                        btnL.setBackgroundColor(0xFF5e9732);
+                        startGuide();
+                    } else {
+                        Toast.makeText(this, "You placed them both on the same location! \nPlease reset and try again", Toast.LENGTH_SHORT).show();
                     }
-                    else{Toast.makeText(this, "You placed them both on the same location! \nPlease reset and try again", Toast.LENGTH_SHORT).show();}
-                }
-                else{
+                } else {
                     locationRight = location;
-                    btnR.setBackgroundColor(getResources().getColor(R.color.approving_Green));
+                    btnL.setBackgroundColor(0xFF5e9732);
                 }
+            }
+            else{
+                Log.i("LLOCATION", "no location");
             }
         });
-        startGuide();
+
     }
 
-    public void save (View view){
-    }
+    public void saveRight(View view) {
+        Log.i("FB", "saveRight");
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-    //Utility functions
-    public void startGuide() {
-        if(locationLeft != null&& locationRight != null){
-            sBvert.getThumb().setColorFilter(0xFFC41230, PorterDuff.Mode.SRC);
-            sBhori.getThumb().setColorFilter(0xFFC41230, PorterDuff.Mode.SRC);
-            consoleCoordinates = consoleCoordinates(locationLeft.getLatitude(), locationLeft.getLongitude(), locationRight.getLatitude(), locationRight.getLongitude(), locationLeft.distanceTo(locationRight));
-            
-            
-            createLocationRequest();
-            createLocationCallback();
-            if(checkLocationPermission()){
-                startLocationUpdates();
-            }else{
-                requestLocationPermission();
+        }
+        fLC.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(this, location -> {
+            if (location != null) {
+                Toast.makeText(this, "Location Right registered", Toast.LENGTH_SHORT).show();
+                if (locationRight != null) {
+                    if (location.distanceTo(locationRight) != 0) {
+                        locationLeft = location;
+                        btnR.setBackgroundColor(0xFF5e9732);
+                        startGuide();
+                    } else {
+                        Toast.makeText(this, "You placed them both on the same location! \nPlease reset and try again", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    locationLeft = location;
+                    btnR.setBackgroundColor(0xFF5e9732);
+                }
             }
-        }
-        
-
-    }
-
-    public boolean checkAndRequestLocationPermissions (Activity activity,int requestCode){
-        String[] permissions = {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        };
-
-        boolean allPermissionsGranted = true;
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                allPermissionsGranted = false;
-                break;
+            else{
+                Log.i("RLOCATION", "no location");
             }
-        }
-
-        if (allPermissionsGranted) {
-            // Permissions are granted
-            return true;
-        } else {
-            // Permissions are not granted, request them
-            ActivityCompat.requestPermissions(activity, permissions, requestCode);
-            return false;
-        }
+        });
     }
-    public double[] consoleCoordinates ( double xl, double yl, double xr, double yr, double distanceAB){
+
+    public void save(View view) {
+        nameandpic();
+    }
+
+    public double[] consoleCoordinates(double xl, double yl, double xr, double yr, double distanceAB) {
         double[] consoleCoordinates = new double[2];
         double xc1 = (x1(4, -4 * (xl + xr), (xl + xr) * (xl + xr) - 3 * (yr - yl) * (yr - yl)));
         double xc2 = (x2(4, -4 * (xl + xr), (xl + xr) * (xl + xr) - 3 * (yr - yl) * (yr - yl)));
@@ -239,117 +262,100 @@ public class CalibrationActivity extends AppCompatActivity {
                 consoleCoordinates[0] = xc2;
             }
             y(consoleCoordinates[0], xl, yl, xr, yr);
+        } else {
+            System.out.println("error");
         }
-        else {System.out.println("error");}
         return consoleCoordinates;
-        }
-    public double y ( double xc, double xl, double yl, double xr, double yr){return ((((xl - xr) / (yr - yl)) * xc) + ((Math.pow(yr, 2) - Math.pow(yl, 2) - Math.pow(xl, 2) + Math.pow(xr, 2)) / (2 * (yr - yl))));}
-    public double x1 ( double a, double b, double c){return ((-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a));}
-    public double x2 ( double a, double b, double c){return ((-b - Math.sqrt((b * b) - (4 * a * c))) / (2 * a));}
-
-    public static double distancePOverCM(double xw, double yw, double xc, double yc){
-        return d(xw,yw,xc,yc);
     }
 
-    public static double distancePOverMC(double xw, double yw, double xr, double yr, double xl, double yl){
-        return d(xw,yw,(xl+xr)/2,(yl+yr)/2);
+    public double y(double xc, double xl, double yl, double xr, double yr) {
+        return ((((xl - xr) / (yr - yl)) * xc) + ((Math.pow(yr, 2) - Math.pow(yl, 2) - Math.pow(xl, 2) + Math.pow(xr, 2)) / (2 * (yr - yl))));
     }
 
-    public static double distancePOverLR(double xn, double yn, double xl, double yl){//distance of point w from point l
-        return d(xn,yn,xl,yl);
-    }
-    public static double distancePOverRL(double xn, double yn, double xr, double yr){//distance of point w from point l
-        return d(xn,yn,xr,yr);
+    public double x1(double a, double b, double c) {
+        return ((-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a));
     }
 
-    public static double d(double x1, double y1, double x2, double y2){
-        return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+    public double x2(double a, double b, double c) {
+        return ((-b - Math.sqrt((b * b) - (4 * a * c))) / (2 * a));
     }
 
-    public static double[] coords(double xc, double yc, double xr, double yr, double xl, double yl,double xp,double yp){
+    public static double distancePOverCM(double xw, double yw, double xc, double yc) {
+        return d(xw, yw, xc, yc);
+    }
+
+    public static double distancePOverMC(double xw, double yw, double xr, double yr, double xl, double yl) {
+        return d(xw, yw, (xl + xr) / 2, (yl + yr) / 2);
+    }
+
+    public static double distancePOverLR(double xn, double yn, double xl, double yl) {//distance of point w from point l
+        return d(xn, yn, xl, yl);
+    }
+
+    public static double distancePOverRL(double xn, double yn, double xr, double yr) {//distance of point w from point l
+        return d(xn, yn, xr, yr);
+    }
+
+    public static double d(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    }
+
+    public static double[] coords(double xc, double yc, double xr, double yr, double xl, double yl, double xp, double yp) {
+        double xn;
+        double yn;
+        double xw;
+        double yw;
         //coordinates for M dot
-        double xm = (xl+xr)/2;
-        double ym = (yl+yr)/2;
+        double xm = (xl + xr) / 2;
+        double ym = (yl + yr) / 2;
         //slope of LR(MR) and WP
-        double mmr = (yr-ym)/(xr-xm);
+        double mmr = (yr - ym) / (xr - xm);
         //slope of CM and PN
-        double mpn = -1/mmr;
+        double mpn = -1 / mmr;
         //b of graph pn
-        double bpn = yp - (mpn*xp);
+        double bpn = yp - (mpn * xp);
         //b of graph mr
-        double bmr = ym - (mmr*xm);
+        double bmr = ym - (mmr * xm);
         //b of graph wp
-        double bwp = yp - (mmr*xp);
+        double bwp = yp - (mmr * xp);
         //b of graph cm
-        double bcm = yc - (mpn*xc);
+        double bcm = yc - (mpn * xc);
+        //b of graph lr
+        double blr= yl - (mmr * xl);
+        //find the difference between LR and PW
+        double dlrpw = (Math.abs(bwp-blr)/Math.sqrt(Math.pow(mmr,2)+1));
+        //find the difference between MR and PN
+        double dmrpn = (Math.abs(bpn-bmr)/Math.sqrt(Math.pow(mmr,2)+1));
+        //difference in x's between lr and pw
+        double diflrpw = Math.sqrt(Math.pow(blr-bwp,2)-dlrpw*dlrpw);
+        //difference in x's between cm and pn
+        double difmrpn = Math.sqrt(Math.pow(bcm-bpn,2)-dmrpn*dmrpn);
         //coordinates of n and w
-        double xn = (bmr-bpn)/(mpn-mmr);
-        double yn = mpn*xn + bpn;
-        double xw = (bcm-bwp)/(mmr-mpn);
-        double yw = mmr*xw + bwp;
-        return new double[]{xn,yn,xw,yw};
-    }
-
-
-    private void createLocationRequest() {
-        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 250)
-                .setWaitForAccurateLocation(false)
-                .setMinUpdateIntervalMillis(250)
-                .setMaxUpdateDelayMillis(250)
-                .build();
-    }
-
-    private void createLocationCallback() {
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    // Update UI with location data
-                    double[] coordinates = coords(consoleCoordinates[0], consoleCoordinates[1], locationRight.getLongitude(), locationRight.getLatitude(), locationLeft.getLongitude(), locationLeft.getLatitude(), location.getLongitude(), location.getLatitude());
-                    double distanceLR = locationLeft.distanceTo(locationRight);
-                    double distancePOverMC = distancePOverMC(coordinates[2], coordinates[3], locationRight.getLongitude(), locationRight.getLatitude(), locationLeft.getLongitude(), locationLeft.getLatitude());
-                    double distancePOverCM = distancePOverCM(coordinates[2], coordinates[3], consoleCoordinates[0], consoleCoordinates[1]);
-                    double distancePOverLR = distancePOverLR(coordinates[0], coordinates[1], locationLeft.getLongitude(), locationLeft.getLatitude());
-                    double distancePOverRL = distancePOverRL(coordinates[0], coordinates[1], locationRight.getLongitude(), locationRight.getLatitude());
-                    if(distancePOverLR + distancePOverRL!=distanceLR) {
-                        if (distancePOverLR < distancePOverRL) {
-                        sBhori.setProgress(5 - (int) ((distancePOverLR / distanceLR) * 5));
-                        }
-                        else if (distancePOverLR > distancePOverRL) {
-                        sBhori.setProgress(95 + (int) ((distancePOverRL / distanceLR) * 5));
-                        }
-                    }
-                    else{
-                        sBhori.setProgress((int) (5 + ((distancePOverLR/distanceLR)*90)));
-                    }
-                    if(distancePOverCM + distancePOverMC!=Math.sqrt(Math.pow(distanceLR,2)*0.75)) {
-                        if (distancePOverCM < distancePOverMC) {
-                            sBvert.setProgress(0);
-                        }
-                        else if (distancePOverCM > distancePOverMC) {
-                            sBvert.setProgress((int) ((distancePOverCM/distanceLR)*100));
-                        }
-                    }
-                    else{
-                        sBvert.setProgress((int) ((distancePOverCM/distanceLR)*100));
-                    }
-                    if(sBhori.getProgress()>47&&sBhori.getProgress()<53) {sBhori.getThumb().setColorFilter(0xFF5e9732, PorterDuff.Mode.SRC); presconf--;}
-                    else {sBhori.getThumb().setColorFilter(0xFF625b71, PorterDuff.Mode.SRC); presconf=24;}
-                    if(sBvert.getProgress()>72&&sBhori.getProgress()<78) {sBvert.getThumb().setColorFilter(0xFF5e9732, PorterDuff.Mode.SRC); presconf--;}
-                    else {sBvert.getThumb().setColorFilter(0xFF625b71, PorterDuff.Mode.SRC); presconf=24;}
-                    if (presconf <= 0) {
-                        stopLocationUpdates();
-                        nameandpic();
-                    }
-                }
-            }
-        };
+        if(bwp>blr){
+            xn = xp+diflrpw;
+        }
+        else{
+            xn = xp-diflrpw;
+        }
+        if(bpn>bcm){
+            xw = xc-difmrpn;
+        }
+        else {
+            xw = xc + difmrpn;
+        }
+        yn = mpn * xn + bpn;
+        yw = mmr * xw + bwp;
+        return new double[]{xn, yn, xw, yw};
     }
 
     private void nameandpic() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+        }
+        fLC.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(this, location -> {
+            locationFOH = location;
+                });
+        if(!isLocation) liveDbMeter.stop();
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setCancelable(false);
         adb.setTitle("Name this location and take photo from console location");
@@ -359,24 +365,24 @@ public class CalibrationActivity extends AppCompatActivity {
         adb.setPositiveButton("Confirm & shoot", (dialog, which) -> {
             sP = getSharedPreferences("sp", MODE_PRIVATE);
             sPeditor = sP.edit();
-            counter = sP.getInt("counter", 0)+1;
+            counter = sP.getInt("counter", 0) + 1;
             sPeditor.putInt("counter", counter);
             sPeditor.commit();
+            vName = etname.getText().toString();
             Intent takePicIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if(takePicIntent.resolveActivity(getPackageManager())!=null){
-                startActivityForResult(takePicIntent,1);
+            if (takePicIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePicIntent, 1);
             }
         });
         AlertDialog ad = adb.create();
         ad.show();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 1 && resultCode == RESULT_OK){
+        if (requestCode == 1 && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             uploadpic(imageBitmap);
@@ -386,55 +392,100 @@ public class CalibrationActivity extends AppCompatActivity {
 
     private void uploadpic(Bitmap imageBitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
-        StorageReference ref = storef.child("images/"+refauth.getCurrentUser().getUid()+"_"+counter+".jpg");
+
+        String address = "images/" + refauth.getCurrentUser().getUid() + "_" + counter + ".jpg";
+        StorageReference ref = storef.child(address);
+
+        Calibration curCal = new Calibration(locationFOH,locationLeft,locationRight,address);
+        refCals.child(vName+""+counter).setValue(curCal.toString());
+
         UploadTask tsk = ref.putBytes(data);
-        tsk.addOnSuccessListener(taskSnapshot -> Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()).addOnFailureListener(e -> Toast.makeText(this, "fail: "+e.getMessage(), Toast.LENGTH_SHORT).show());
+        tsk.addOnSuccessListener(taskSnapshot -> Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()).addOnFailureListener(e -> Toast.makeText(this, "fail: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
-    private boolean checkLocationPermission() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+    public void startGuide() {
+        Log.i("FB", "startGuide");
+        if (locationRight != null && locationLeft != null) {
+
+            sBvert.getThumb().setColorFilter(0xFFC41230, PorterDuff.Mode.SRC);
+            sBhori.getThumb().setColorFilter(0xFFC41230, PorterDuff.Mode.SRC);
+            consoleCoordinates = consoleCoordinates(locationRight.getLatitude(), locationRight.getLongitude(), locationLeft.getLatitude(), locationLeft.getLongitude(), locationRight.distanceTo(locationLeft));
+            anabtn.setVisibility(View.VISIBLE);
+            anabtn.setText("Update Location");
+
+
+        }
+
     }
 
-    private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
-    }
+    public void guide(View view) {
+        if(isLocation) {
+            Log.i("FB", "continue");
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startLocationUpdates();
-            } else {
-                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
             }
+            fLC.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(this, location -> {
+                Log.i("FB", "location");
+                Toast.makeText(this, "ping", Toast.LENGTH_SHORT).show();
+                if (location != null) {
+                    double[] coordinates = coords(consoleCoordinates[0], consoleCoordinates[1], locationLeft.getLongitude(), locationLeft.getLatitude(), locationRight.getLongitude(), locationRight.getLatitude(), location.getLongitude(), location.getLatitude());
+                    Log.i("loc", "xn = "+coordinates[0]+" yn = "+coordinates[1]+" xw = "+coordinates[2]+" yw = "+coordinates[3]);
+                    double distanceLR = d(locationRight.getLongitude(), locationRight.getLatitude(), locationLeft.getLongitude(), locationLeft.getLatitude());
+                    Log.i("loc", "distanceLR = "+distanceLR);
+                    double distancePOverMC = distancePOverMC(coordinates[2], coordinates[3], locationLeft.getLongitude(), locationLeft.getLatitude(), locationRight.getLongitude(), locationRight.getLatitude());
+                    Log.i("loc", "distancePOverMC = "+distancePOverMC);
+                    double distancePOverCM = distancePOverCM(coordinates[2], coordinates[3], consoleCoordinates[0], consoleCoordinates[1]);
+                    Log.i("loc", "distancePOverCM = "+distancePOverCM);
+                    double distancePOverLR = distancePOverLR(coordinates[0], coordinates[1], locationRight.getLongitude(), locationRight.getLatitude());
+                    Log.i("loc", "distancePOverLR = "+distancePOverLR);
+
+
+
+                    sBhori.setProgress((int) ((distancePOverLR / distanceLR) * 100));
+                    Log.i("loc", "sBhori.getProgress() = "+sBhori.getProgress());
+
+
+                    sBvert.setProgress((int) (distancePOverCM / distanceLR));
+                    Log.i("loc", "sBvert.getProgress() = "+sBvert.getProgress());
+
+                    if (sBvert.getProgress() > 72 && sBhori.getProgress() < 78 && sBhori.getProgress() > 47 && sBhori.getProgress() < 53) {
+                        sBvert.getThumb().setColorFilter(0xFF5e9732, PorterDuff.Mode.SRC);
+                        savebtn.setVisibility(View.VISIBLE);
+                    }
+
+                }
+            });
         }
-    }
-
-    private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        else{
+            //start recording
+            liveDbMeter.start();
         }
-        fLC.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (checkLocationPermission()) {
-            startLocationUpdates();
-        }
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopLocationUpdates();
     }
+    public static CalibrationActivity getInstance() {return ins;}
 
-    private void stopLocationUpdates() {
-        fLC.removeLocationUpdates(locationCallback);
+    public void updateRMS(double rmsprog) {
+        CalibrationActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                sBhori.setProgress((int) rmsprog);
+                if(rmsprog>40&&rmsprog<60){
+                    savebtn.setVisibility(View.VISIBLE);
+                    sBhori.setThumb(DrawableCompat.wrap(Objects.requireNonNull(AppCompatResources.getDrawable(getInstance(), android.R.drawable.presence_online))));
+                }
+                else if (rmsprog<40){
+                    savebtn.setVisibility(View.INVISIBLE);
+                    sBhori.setThumb(DrawableCompat.wrap(Objects.requireNonNull(AppCompatResources.getDrawable(getInstance(), android.R.drawable.ic_media_ff))));
+                }
+                else if(rmsprog>60){
+                    savebtn.setVisibility(View.INVISIBLE);
+                    sBhori.setThumb(DrawableCompat.wrap(Objects.requireNonNull(AppCompatResources.getDrawable(getInstance(), android.R.drawable.ic_media_rew))));
+                }
+            }
+        });
     }
 }
