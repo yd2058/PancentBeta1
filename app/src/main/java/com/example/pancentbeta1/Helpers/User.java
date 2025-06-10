@@ -19,18 +19,7 @@ public class User {
     public String getUid() {
         return uid;
     }
-    public String getUsername() {
-        return username;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public ArrayList<Calibration> getPastcals() {
-        return pastcals;
-    }
-    public void addCalibration(Calibration c){
-        pastcals.add(c);
-    }
+
 
 
 }

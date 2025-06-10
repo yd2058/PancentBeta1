@@ -18,8 +18,9 @@ public class Calibration {
     boolean is_location_calibrated;
     String Uid;
     String photoAddress;
+    String venueName;
 
-    public Calibration(Location locationFOH, Location locationR, Location locationL, String photoAddress){
+    public Calibration(Location locationFOH, Location locationR, Location locationL, String photoAddress, String venueName) {
         this.locationFOH = locationFOH;
         this.locationR = locationR;
         this.locationL = locationL;
@@ -31,6 +32,13 @@ public class Calibration {
         this.calibrationTime = Long.parseLong(currentDateTime.format(formatter));
 
         this.Uid = refauth.getCurrentUser().getUid();
+    }
+    public Location getLocationFOH() {
+        return locationFOH;
+    }
+
+    public String getVenueName() {
+        return venueName;
     }
 
 }

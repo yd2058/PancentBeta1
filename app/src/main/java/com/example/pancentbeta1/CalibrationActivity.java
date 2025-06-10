@@ -398,7 +398,7 @@ public class CalibrationActivity extends AppCompatActivity {
         String address = "images/" + refauth.getCurrentUser().getUid() + "_" + counter + ".jpg";
         StorageReference ref = storef.child(address);
 
-        Calibration curCal = new Calibration(locationFOH,locationLeft,locationRight,address);
+        Calibration curCal = new Calibration(locationFOH,locationLeft,locationRight,address, vName);
         refCals.child(vName+""+counter).setValue(curCal.toString());
 
         UploadTask tsk = ref.putBytes(data);

@@ -37,6 +37,7 @@ public class HomeActivity extends AppCompatActivity {
         menu.add("Home");
         menu.add("Logout");
         menu.add("Map");
+        menu.add("Credits");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -47,6 +48,15 @@ public class HomeActivity extends AppCompatActivity {
         }
         else if(item.getTitle().toString().equals("home")){
             //pass
+        }
+        else if(item.getTitle().toString().equals("Map")){
+            startActivity(new Intent(this, MapActivity.class));
+        }
+        else if(item.getTitle().toString().equals("Credits")){
+            //startActivity(new Intent(this, CreditsActivity.class));
+        }
+        else{
+            return false;
         }
 
 

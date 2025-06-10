@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -41,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     String username, email, password;
     ToggleButton stayloggedin;
     Button logregbtn, regtogbtn;
+    TextView titv;
     Intent gotohome;
     SharedPreferences sP;
     SharedPreferences.Editor sPeditor;
@@ -56,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         stayloggedin = findViewById(R.id.staylogtg);
         logregbtn = findViewById(R.id.logregbtn);
         regtogbtn = findViewById(R.id.regtogbtn);
+        titv = findViewById(R.id.titv);
         gotohome = new Intent(this, HomeActivity.class);
         sP = getSharedPreferences("sp", MODE_PRIVATE);
         sPeditor = sP.edit();
@@ -134,11 +137,13 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void register(View view) {
         if(regtogbtn.getText().equals("Register")){
+            titv.setText("Register");
             logregbtn.setText("Register User");
             regtogbtn.setText("Login");
             eTUname.setVisibility(View.VISIBLE);
         }
         else{
+            titv.setText("Login");
             logregbtn.setText("Login");
             regtogbtn.setText("Register");
             eTUname.setVisibility(View.INVISIBLE);
