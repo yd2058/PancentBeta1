@@ -69,7 +69,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private double longitude = 0.0;
     private LocationManager locationManager;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private Intent GPS, Video, Registration;
     private ProgressDialog Retrivieving_Location;
 
 
