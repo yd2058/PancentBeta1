@@ -292,10 +292,6 @@ public class CalibrationActivity extends AppCompatActivity {
         return d(xn, yn, xl, yl);
     }
 
-    public static double distancePOverRL(double xn, double yn, double xr, double yr) {//distance of point w from point l
-        return d(xn, yn, xr, yr);
-    }
-
     public static double d(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
