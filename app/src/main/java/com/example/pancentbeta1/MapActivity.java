@@ -174,7 +174,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         longitude = location.getLongitude();
     }
 
-    private void fetchBasketballPlaces() {
+    private void fetchCalibrationPlaces() {
         if (latitude == 0.0 && longitude == 0.0) {
             showAlertDialog("Current location not available.");
             return;
@@ -187,11 +187,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
                 + "?location=" + latitude + "," + longitude
                 + "&radius=" + radiusInMeters
-                + "&keyword=basketball+calibration"
+                + "&keyword=calibration+calibration"
                 + "&type=sports_complex"
                 + "&key=" + apiKey;
 
-        Log.d(TAG, "Fetching basketball places with URL: " + url);
+        Log.d(TAG, "Fetching calibration places with URL: " + url);
         final ProgressDialog pd = ProgressDialog.show(this, "Find Calibrations", "Searching...", true);
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -207,7 +207,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
 
                 JSONArray results = response.getJSONArray("results");
-                Log.d(TAG, "Number of basketball places found: " + results.length());
+                Log.d(TAG, "Number of calibration places found: " + results.length());
 
                 mMap.clear(); // Clear existing markers
                 pd.dismiss();
@@ -247,7 +247,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                 });
 
-                Toast.makeText(this, "Nearby basketball places added to the map.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nearby calibration places added to the map.", Toast.LENGTH_SHORT).show();
                 FindCalibration++;
 
             } catch (JSONException e) {
@@ -257,7 +257,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         },
                 error -> {
                     Log.e(TAG, "Volley error: ", error);
-                    showAlertDialog("Error fetching basketball places.");
+                    showAlertDialog("Error fetching calibrationbasketball places.");
                 }
         );
 
@@ -266,7 +266,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     public void Find_Place(View view) {
-        fetchBasketballPlaces();
+        fetchCalibrationPlaces();
 
     }
 
