@@ -387,6 +387,7 @@ public class CalibrationActivity extends AppCompatActivity {
     }
 
     private void uploadpic(Bitmap imageBitmap) {
+        Log.i("FB", "uploadpic");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
@@ -395,7 +396,7 @@ public class CalibrationActivity extends AppCompatActivity {
         StorageReference ref = storef.child(address);
 
         Calibration curCal = new Calibration(locationFOH,locationLeft,locationRight,address, vName);
-        refCals.child(vName+""+counter).setValue(curCal.toString());
+        refCals.child(vName+""+counter).setValue(curCal).addOnSuccessListener(unused -> Log.i("upload succuss","yeepee")).addOnFailureListener(e -> Log.i("upload fail","fail: "+e.getMessage()));
 
         UploadTask tsk = ref.putBytes(data);
         tsk.addOnSuccessListener(taskSnapshot -> Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()).addOnFailureListener(e -> Toast.makeText(this, "fail: " + e.getMessage(), Toast.LENGTH_LONG).show());

@@ -53,8 +53,9 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(this, MapActivity.class));
         }
         else if(item.getTitle().toString().equals("Credits")){
-            //startActivity(new Intent(this, CreditsActivity.class));
+            startActivity(new Intent(this, CreditsActivity.class));
         }
+
         else{
             return false;
         }

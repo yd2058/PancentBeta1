@@ -230,9 +230,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for (DataSnapshot caliSnapshot : snapshot.getChildren()) {
                             Calibration cal = caliSnapshot.getValue(Calibration.class);
-                            if (cal != null && cal.getLocationFOH().getLatitude() != 0.0 && cal.getLocationFOH().getLongitude() != 0.0) {
-                                double lat = cal.getLocationFOH().getLatitude();
-                                double lng = cal.getLocationFOH().getLongitude();
+                            if (cal != null && cal.getLocationFOH().get(0) != 0.0 && cal.getLocationFOH().get(1) != 0.0) {
+                                double lat = cal.getLocationFOH().get(0);
+                                double lng = cal.getLocationFOH().get(1);
                                 LatLng calibrationLatLng = new LatLng(lat, lng);
                                 calibrationsLocation.add(calibrationLatLng);
                                 mMap.addMarker(new MarkerOptions().position(calibrationLatLng).title(cal.getVenueName()));
@@ -388,7 +388,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             startActivity(new Intent(this, LoginActivity.class));
         } else if (st.equals("home")) {
             startActivity(new Intent(this, HomeActivity.class));
-
+        }
+        else if (st.equals("Map")) {
+            // Do nothing, already in MapActivity
+        } else if (st.equals("Credits")) {
+            startActivity(new Intent(this, CreditsActivity.class));
+        } else {
+            // Handle other menu items if needed
         }
         return super.onOptionsItemSelected(item);
 
