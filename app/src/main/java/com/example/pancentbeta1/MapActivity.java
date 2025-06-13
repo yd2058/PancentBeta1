@@ -214,10 +214,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     JSONObject place = results.getJSONObject(i);
 
                     // get place details
-                    String placeName = place.getString("name");
-                    JSONObject location = place.getJSONObject("geometry").getJSONObject("location");
-                    double lat = location.getDouble("lat");
-                    double lng = location.getDouble("lng");
+                    String placeName = place.getString("venueName");
+                    JSONObject location = place.getJSONObject("locationFOH");
+                    double lat = location.getDouble("0");
+                    double lng = location.getDouble("1");
 
                     // add a marker for each place found
                     LatLng placeLatLng = new LatLng(lat, lng);
@@ -234,6 +234,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 double lat = cal.getLocationFOH().get(0);
                                 double lng = cal.getLocationFOH().get(1);
                                 LatLng calibrationLatLng = new LatLng(lat, lng);
+                                Log.i(TAG, "Adding calibration marker: " + cal.getVenueName() + " at " + calibrationLatLng);
                                 calibrationsLocation.add(calibrationLatLng);
                                 mMap.addMarker(new MarkerOptions().position(calibrationLatLng).title(cal.getVenueName()));
                             }
@@ -357,6 +358,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        finish();
                     }
                 });
         AlertDialog alert = builder.create();

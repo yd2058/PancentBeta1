@@ -151,4 +151,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    public void toglogtype(View view) {
+        if(stayloggedin.isChecked()){
+            sPeditor.putBoolean("loginNextTime", false);
+        }
+        else{
+            sPeditor.putBoolean("loginNextTime", true);
+        }
+
+        sPeditor.commit();
+    }
 }
