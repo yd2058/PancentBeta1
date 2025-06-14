@@ -19,6 +19,9 @@ import androidx.core.content.ContextCompat;
 
 import com.example.pancentbeta1.CalibrationActivity;
 
+/**
+ * The type Live db meter.
+ */
 public class LiveDbMeter {
 
     private static final int SAMPLE_RATE = 44100; // Hz
@@ -30,12 +33,17 @@ public class LiveDbMeter {
     private boolean isRecording;
 
 
-
+    /**
+     * The Permissions.
+     */
     String[] permissions;
 
 
-
-
+    /**
+     * Instantiates a new Live db meter.
+     *
+     * @param context the context
+     */
     public LiveDbMeter(Context context) {
 
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)== PackageManager.PERMISSION_GRANTED) {
@@ -55,8 +63,9 @@ public class LiveDbMeter {
     }
 
 
-    
-    
+    /**
+     * Start.
+     */
     public void start() {
         if(!isRecording) {
             isRecording = true;
@@ -88,6 +97,9 @@ public class LiveDbMeter {
         }
     }
 
+    /**
+     * Stop.
+     */
     public void stop() {
         if(isRecording) {
             isRecording = false;

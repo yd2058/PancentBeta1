@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * The type Live logcat to file.
+ */
 public class LiveLogcatToFile {
 
     private static final String LOG_TAG = "LiveLogcatToFile";
@@ -20,6 +23,11 @@ public class LiveLogcatToFile {
     private static FileOutputStream fileOutputStream;
     private static final String LOGCAT_COMMAND = "logcat";
 
+    /**
+     * Start logging.
+     *
+     * @param context the context
+     */
     public static void startLogging(Context context) {
         // Check if a logging session is already in progress
         if (logcatProcess != null) {
@@ -70,6 +78,9 @@ public class LiveLogcatToFile {
         }
     }
 
+    /**
+     * Stop logging.
+     */
     public static void stopLogging() {
         if (logcatProcess != null) {
             logcatProcess.destroy();
@@ -86,25 +97,6 @@ public class LiveLogcatToFile {
         }
     }
 
-    // Example usage in an Activity
-    //...
 
-    // in the onCreate function, or any other appropriate function :
-    /*
-      // Get the Context.
-        Context context = getApplicationContext();
-
-        liveLogcatToFile.startLogging(context);
-
-    //...
-     // In the onDestroy method of your Activity:
-     // stop the logcat saving, to not keep logging when not needed.
-     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        liveLogcatToFile.stopLogging();
-    }
-
-    */
 
 }
