@@ -53,32 +53,87 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 
+/**
+ * The type Calibration activity.
+ */
 public class CalibrationActivity extends AppCompatActivity {
+    /**
+     * The F lc.
+     */
     FusedLocationProviderClient fLC;
-    Location locationLeft, locationRight, locationFOH;
+    /**
+     * The Location left.
+     */
+    Location locationLeft,
+    /**
+     * The Location right.
+     */
+    locationRight,
+    /**
+     * The Location foh.
+     */
+    locationFOH;
 
-    SeekBar sBvert, sBhori;
-    Button btnL, btnR, anabtn, savebtn, resbtn;
+    /**
+     * The S bvert.
+     */
+    SeekBar sBvert,
+    /**
+     * The S bhori.
+     */
+    sBhori;
+    /**
+     * The Btn l.
+     */
+    Button btnL,
+    /**
+     * The Btn r.
+     */
+    btnR,
+    /**
+     * The Anabtn.
+     */
+    anabtn,
+    /**
+     * The Savebtn.
+     */
+    savebtn,
+    /**
+     * The Resbtn.
+     */
+    resbtn;
 
-
-
+    /**
+     * The Console coordinates.
+     */
     double[] consoleCoordinates = new double[2];
 
-
-
-
-
-
+    /**
+     * The S p.
+     */
     SharedPreferences sP;
+    /**
+     * The S peditor.
+     */
     SharedPreferences.Editor sPeditor;
 
+    /**
+     * The Counter.
+     */
     int counter;
+    /**
+     * The V name.
+     */
     String vName;
+    /**
+     * The Is location.
+     */
     boolean isLocation;
     private static CalibrationActivity ins;
 
-
-
+    /**
+     * The Live db meter.
+     */
     LiveDbMeter liveDbMeter;
 
 
@@ -159,6 +214,11 @@ public class CalibrationActivity extends AppCompatActivity {
         LiveLogcatToFile.startLogging(getApplicationContext());
     }
 
+    /**
+     * Reset the calibration process.
+     *
+     * @param view the visual component initiated
+     */
     public void reset(View view) {
         if(isLocation) {
             locationRight = null;
@@ -178,6 +238,11 @@ public class CalibrationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Save left speaker location.
+     *
+     * @param view the visual component initiated
+     */
     public void saveLeft(View view) {
         Log.i("FB", "saveLeft");
 
@@ -208,6 +273,11 @@ public class CalibrationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Save right speaker location.
+     *
+     * @param view the visual component initiated
+     */
     public void saveRight(View view) {
         Log.i("FB", "saveRight");
 
@@ -236,10 +306,25 @@ public class CalibrationActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Save the calibration.
+     *
+     * @param view the visual component initiated
+     */
     public void save(View view) {
         nameandpic();
     }
 
+    /**
+     * Console coordinates double [ ].
+     *
+     * @param xl         the xl
+     * @param yl         the yl
+     * @param xr         the xr
+     * @param yr         the yr
+     * @param distanceAB the distance ab
+     * @return the coordinates of the balance location
+     */
     public double[] consoleCoordinates(double xl, double yl, double xr, double yr, double distanceAB) {
         double[] consoleCoordinates = new double[2];
         double xc1 = (x1(4, -4 * (xl + xr), (xl + xr) * (xl + xr) - 3 * (yr - yl) * (yr - yl)));
@@ -271,34 +356,111 @@ public class CalibrationActivity extends AppCompatActivity {
         return consoleCoordinates;
     }
 
+    /**
+     * Y double.
+     *
+     * @param xc the xc
+     * @param xl the xl
+     * @param yl the yl
+     * @param xr the xr
+     * @param yr the yr
+     * @return y value of the balance location
+     */
     public double y(double xc, double xl, double yl, double xr, double yr) {
         return ((((xl - xr) / (yr - yl)) * xc) + ((Math.pow(yr, 2) - Math.pow(yl, 2) - Math.pow(xl, 2) + Math.pow(xr, 2)) / (2 * (yr - yl))));
     }
 
+    /**
+     * X 1 double.
+     *
+     * @param a the a
+     * @param b the b
+     * @param c the c
+     * @return the possible x value of the balance location
+     */
     public double x1(double a, double b, double c) {
         return ((-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a));
     }
 
+    /**
+     * X 2 double.
+     *
+     * @param a the a
+     * @param b the b
+     * @param c the c
+     * @return the possible x value of the balance location
+     */
     public double x2(double a, double b, double c) {
         return ((-b - Math.sqrt((b * b) - (4 * a * c))) / (2 * a));
     }
 
+    /**
+     * Distance p over cm double.
+     *
+     * @param xw the xw
+     * @param yw the yw
+     * @param xc the xc
+     * @param yc the yc
+     * @return the distance from point w from point c along cm
+     */
     public static double distancePOverCM(double xw, double yw, double xc, double yc) {
         return d(xw, yw, xc, yc);
     }
 
+    /**
+     * Distance p over mc double.
+     *
+     * @param xw the xw
+     * @param yw the yw
+     * @param xr the xr
+     * @param yr the yr
+     * @param xl the xl
+     * @param yl the yl
+     * @return the distance from point w from point m along mc
+     */
     public static double distancePOverMC(double xw, double yw, double xr, double yr, double xl, double yl) {
         return d(xw, yw, (xl + xr) / 2, (yl + yr) / 2);
     }
 
+    /**
+     * Distance p over lr double.
+     *
+     * @param xn the xn
+     * @param yn the yn
+     * @param xl the xl
+     * @param yl the yl
+     * @return the distance from point n to point l along lr
+     */
     public static double distancePOverLR(double xn, double yn, double xl, double yl) {//distance of point w from point l
         return d(xn, yn, xl, yl);
     }
 
+    /**
+     * D double.
+     *
+     * @param x1 the x 1
+     * @param y1 the y 1
+     * @param x2 the x 2
+     * @param y2 the y 2
+     * @return the distance between two points in 2D space
+     */
     public static double d(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
+    /**
+     * Coords double [ ].
+     *
+     * @param xc the xc
+     * @param yc the yc
+     * @param xr the xr
+     * @param yr the yr
+     * @param xl the xl
+     * @param yl the yl
+     * @param xp the xp
+     * @param yp the yp
+     * @return the coordinates of the balance location and of points n and w
+     */
     public static double[] coords(double xc, double yc, double xr, double yr, double xl, double yl, double xp, double yp) {
         double xn;
         double yn;
@@ -406,6 +568,9 @@ public class CalibrationActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Start guide.
+     */
     public void startGuide() {
         Log.i("FB", "startGuide");
         if (locationRight != null && locationLeft != null) {
@@ -421,6 +586,11 @@ public class CalibrationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * reaction to the guide.
+     *
+     * @param view the visual component initiated
+     */
     public void guide(View view) {
         if(isLocation) {
             Log.i("FB", "continue");
@@ -466,8 +636,19 @@ public class CalibrationActivity extends AppCompatActivity {
 
 
     }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance of this class
+     */
     public static CalibrationActivity getInstance() {return ins;}
 
+    /**
+     * Update rms.
+     *
+     * @param rmsprog the progress of the guide
+     */
     public void updateRMS(double rmsprog) {
         CalibrationActivity.this.runOnUiThread(new Runnable() {
             @Override

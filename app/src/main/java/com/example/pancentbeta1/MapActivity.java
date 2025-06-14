@@ -59,6 +59,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Map activity.
+ */
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
@@ -72,7 +75,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ProgressDialog Retrivieving_Location;
 
 
+    /**
+     * The Find calibration.
+     */
     int FindCalibration;
+    /**
+     * The Calibrations location.
+     */
     List<LatLng> calibrationsLocation = new ArrayList<>();
 
 
@@ -265,6 +274,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
+    /**
+     * Find place.
+     *
+     * @param view the view
+     */
     public void Find_Place(View view) {
         fetchCalibrationPlaces();
 
@@ -365,6 +379,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         alert.show();
     }
 
+    /**
+     * Go back.
+     *
+     * @param view the view
+     */
     public void go_back(View view) {
         finish();
     }

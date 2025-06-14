@@ -37,14 +37,56 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * The type Login activity.
+ */
 public class LoginActivity extends AppCompatActivity {
-    EditText eTUname, eTem, eTpwd;
-    String username, email, password;
+    /**
+     * The E t uname.
+     */
+    EditText eTUname, /**
+     * The E tem.
+     */
+    eTem, /**
+     * The E tpwd.
+     */
+    eTpwd;
+    /**
+     * The Username.
+     */
+    String username, /**
+     * The Email.
+     */
+    email, /**
+     * The Password.
+     */
+    password;
+    /**
+     * The Stayloggedin.
+     */
     ToggleButton stayloggedin;
-    Button logregbtn, regtogbtn;
+    /**
+     * The Logregbtn.
+     */
+    Button logregbtn, /**
+     * The Regtogbtn.
+     */
+    regtogbtn;
+    /**
+     * The Titv.
+     */
     TextView titv;
+    /**
+     * The Gotohome.
+     */
     Intent gotohome;
+    /**
+     * The S p.
+     */
     SharedPreferences sP;
+    /**
+     * The S peditor.
+     */
     SharedPreferences.Editor sPeditor;
 
     @Override
@@ -82,9 +124,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * @param view refers to the element clicked
+     * create and/or login user.
      *
-     * logs in the user using Firebase Authentication
+     * @param view refers to the element clicked logs in the user using Firebase Authentication
      */
     public void login(View view) {
         email = eTem.getText().toString();
@@ -131,9 +173,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * @param view refers to the element clicked
+     * toggle between login and register.
      *
-     * registers the user using Firebase Authentication
+     * @param view refers to the element clicked registers the user using Firebase Authentication
      */
     public void register(View view) {
         if(regtogbtn.getText().equals("Register")){
@@ -151,6 +193,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * toggle login type.
+     *
+     * @param view the view
+     */
     public void toglogtype(View view) {
         if(stayloggedin.isChecked()){
             sPeditor.putBoolean("loginNextTime", false);

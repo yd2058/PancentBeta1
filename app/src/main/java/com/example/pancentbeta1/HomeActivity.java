@@ -41,7 +41,13 @@ import com.example.pancentbeta1.Helpers.Calibration;
  */
 public class HomeActivity extends AppCompatActivity {
 
+    /**
+     * The Hm tv.
+     */
     TextView hmTv;
+    /**
+     * The Manager.
+     */
     DownloadManager manager;
 
     @Override
@@ -126,7 +132,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * S pl.
+     * start location base calibration.
      *
      * @param view the view
      */
@@ -138,7 +144,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * S pan.
+     * start sound based calibration.
      *
      * @param view the view
      */
